@@ -1,5 +1,4 @@
 type = "agent"
-name = "openclaw-agent"
 public = true
 
 [runtime]
