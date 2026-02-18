@@ -63,6 +63,11 @@ cat > "$OPENCLAW_DIR/openclaw.json" << EOF
       "dangerouslyDisableDeviceAuth": true
     }
   },
+  "plugins": {
+    "load": {
+      "paths": ["$(npm root -g)/@blaxel/openclaw-skill"]
+    }
+  },
   "agents": {
     "defaults": {
       "workspace": "$OPENCLAW_DIR/workspace",
