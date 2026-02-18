@@ -1,0 +1,18 @@
+type = "agent"
+name = "openclaw-agent"
+public = true
+
+[runtime]
+generation = "mk3"
+memory = 4096
+minScale = 1
+
+[env]
+# Primary model for OpenClaw (provider/model format)
+OPENCLAW_MODEL = "anthropic/claude-sonnet-4-5"
+
+# Optional: set a fixed gateway token (auto-generated if not set)
+# OPENCLAW_GATEWAY_TOKEN = ""
+
+[build]
+slim = false
