@@ -9,10 +9,9 @@ minScale = 1
 
 [env]
 # Primary model for OpenClaw (provider/model format)
-OPENCLAW_MODEL = "anthropic/claude-sonnet-4-5"
-
-# Optional: set a fixed gateway token (auto-generated if not set)
-# OPENCLAW_GATEWAY_TOKEN = ""
+ANTHROPIC_API_KEY = "${secrets.ANTHROPIC_API_KEY}"
+OPENCLAW_GATEWAY_TOKEN = "${secrets.OPENCLAW_GATEWAY_TOKEN}"
+OPENCLAW_MODEL = "$OPENCLAW_MODEL"
 
 [build]
 slim = false
