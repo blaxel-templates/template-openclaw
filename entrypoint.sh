@@ -89,6 +89,9 @@ if [ -n "$TELEGRAM_BOT_TOKEN" ]; then
 fi
 echo "============================================"
 
+MAX_RETRIES="${MAX_RETRIES:-5}"
+RETRY_COUNT=0
+
 while true; do
   pkill -f "openclaw gateway" 2>/dev/null || true
   sleep 1
@@ -99,7 +102,19 @@ while true; do
     --token "$OPENCLAW_GATEWAY_TOKEN" \
     --force \
     --allow-unconfigured \
-    --verbose || true
+    --verbose
+  EXIT_CODE=$?
 
-  echo "OpenClaw exited with code $?, restarting..."
+  if [ $EXIT_CODE -eq 0 ]; then
+    RETRY_COUNT=0
+  else
+    RETRY_COUNT=$((RETRY_COUNT + 1))
+    echo "OpenClaw exited with code $EXIT_CODE (failure $RETRY_COUNT/$MAX_RETRIES)"
+    if [ $RETRY_COUNT -ge $MAX_RETRIES ]; then
+      echo "Max retries reached, giving up."
+      exit 1
+    fi
+  fi
+
+  echo "Restarting..."
 done
