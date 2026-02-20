@@ -93,8 +93,16 @@ MAX_RETRIES="${MAX_RETRIES:-5}"
 RETRY_COUNT=0
 
 while true; do
-  pkill -f "openclaw gateway" 2>/dev/null || true
+  pkill -9 -f "openclaw gateway" 2>/dev/null || true
   sleep 1
+
+  # Clean up stale lock/pid files left after container restore (CRIU)
+  rm -f "$OPENCLAW_DIR"/*.lock "$OPENCLAW_DIR"/*.pid 2>/dev/null || true
+  rm -f /tmp/openclaw/*.lock /tmp/openclaw/*.pid 2>/dev/null || true
+
+  # Release port in case a zombie process still holds it
+  fuser -k "$PORT/tcp" 2>/dev/null || true
+  sleep 0.5
 
   openclaw gateway \
     --port "$PORT" \
