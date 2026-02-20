@@ -17,7 +17,7 @@ OpenClaw's Control UI, WebSocket API, and optional channel integrations (Telegra
 
 1. Clone the template:
    ```bash
-   bl create-agent --template openclaw my-openclaw
+   bl new agent --template openclaw my-openclaw
    cd my-openclaw
    ```
 
