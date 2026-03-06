@@ -7,6 +7,7 @@ PORT="${PORT:-80}"
 HOST="${HOST:-0.0.0.0}"
 export OPENCLAW_HOME="${OPENCLAW_HOME:-/root}"
 OPENCLAW_DIR="$OPENCLAW_HOME/.openclaw"
+OPENCLAW_CONFIG="$OPENCLAW_DIR/openclaw.json"
 
 mkdir -p "$OPENCLAW_DIR" "$OPENCLAW_DIR/workspace"
 
@@ -42,51 +43,45 @@ elif [ -n "$ORIGIN_GLOBAL" ]; then
   fi
 fi
 
-TELEGRAM_BLOCK=""
-if [ -n "$TELEGRAM_BOT_TOKEN" ]; then
-  TELEGRAM_BLOCK="\"channels\": { \"telegram\": { \"enabled\": true, \"botToken\": \"$TELEGRAM_BOT_TOKEN\", \"dmPolicy\": \"open\", \"allowFrom\": [\"*\"] } },"
+if [ ! -f "$OPENCLAW_CONFIG" ]; then
+  echo '{}' > "$OPENCLAW_CONFIG"
 fi
 
-cat > "$OPENCLAW_DIR/openclaw.json" << EOF
-{
-  $TELEGRAM_BLOCK
-  "gateway": {
-    "mode": "local",
-    "reload": { "mode": "hot" },
-    "auth": {
-      "mode": "token"
-    },
-    "trustedProxies": ["172.16.0.0/12", "10.0.0.0/8"],
-    "controlUi": {
-      "allowedOrigins": $ORIGINS,
-      "allowInsecureAuth": true,
-      "dangerouslyDisableDeviceAuth": true
-    }
-  },
-  "plugins": {
-    "load": {
-      "paths": ["$(npm root -g)/@blaxel/openclaw-skill"]
-    }
-  },
-  "agents": {
-    "defaults": {
-      "workspace": "$OPENCLAW_DIR/workspace",
-      "model": {
-        "primary": "$MODEL"
-      }
+cp "$OPENCLAW_CONFIG" "$OPENCLAW_CONFIG.bak" 2>/dev/null || true
+
+TMP_CONFIG="$(mktemp)"
+
+jq \
+  --arg workspace "$OPENCLAW_DIR/workspace" \
+  --arg model "$MODEL" \
+  --argjson origins "$ORIGINS" \
+  '
+  .gateway = {
+    mode: "local",
+    reload: { mode: "hot" },
+    auth: { mode: "token" },
+    trustedProxies: ["172.16.0.0/12", "10.0.0.0/8"],
+    controlUi: {
+      allowedOrigins: $origins,
+      allowInsecureAuth: true,
+      dangerouslyDisableDeviceAuth: true
     }
   }
-}
-EOF
+  | .agents = (.agents // {})
+  | .agents.defaults = (.agents.defaults // {})
+  | .agents.defaults.workspace = $workspace
+  | .agents.defaults.model = (.agents.defaults.model // {})
+  | .agents.defaults.model.primary = $model
+  ' \
+  "$OPENCLAW_CONFIG" > "$TMP_CONFIG"
+
+mv "$TMP_CONFIG" "$OPENCLAW_CONFIG"
 
 echo "============================================"
 echo "OpenClaw Gateway starting on $HOST:$PORT"
 echo "Model: $MODEL"
 echo "Gateway Token: $OPENCLAW_GATEWAY_TOKEN"
 echo "Allowed Origins: $ORIGINS"
-if [ -n "$TELEGRAM_BOT_TOKEN" ]; then
-  echo "Telegram: enabled"
-fi
 echo "============================================"
 
 MAX_RETRIES="${MAX_RETRIES:-5}"
@@ -96,11 +91,9 @@ while true; do
   pkill -9 -f "openclaw gateway" 2>/dev/null || true
   sleep 1
 
-  # Clean up stale lock/pid files left after container restore (CRIU)
   rm -f "$OPENCLAW_DIR"/*.lock "$OPENCLAW_DIR"/*.pid 2>/dev/null || true
   rm -f /tmp/openclaw/*.lock /tmp/openclaw/*.pid 2>/dev/null || true
 
-  # Release port in case a zombie process still holds it
   fuser -k "$PORT/tcp" 2>/dev/null || true
   sleep 0.5
 

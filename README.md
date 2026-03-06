@@ -55,7 +55,6 @@ Variables defined in `.env` are automatically stored in Blaxel's secret manager 
 | Variable | Default | Description |
 |---|---|---|
 | `OPENCLAW_MODEL` | `anthropic/claude-sonnet-4-5` | Primary model in `provider/model` format. |
-| `TELEGRAM_BOT_TOKEN` | — | Telegram bot token from [@BotFather](https://t.me/BotFather). Enables the Telegram channel automatically. |
 | `OPENCLAW_ALLOWED_ORIGIN` | Auto-computed from Blaxel env | Override the allowed CORS origin for the Control UI. |
 
 ## How It Works

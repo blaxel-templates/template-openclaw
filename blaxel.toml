@@ -8,9 +8,15 @@ minScale = 1
 
 [env]
 # Primary model for OpenClaw (provider/model format)
-ANTHROPIC_API_KEY = "${secrets.ANTHROPIC_API_KEY}"
 OPENCLAW_GATEWAY_TOKEN = "${secrets.OPENCLAW_GATEWAY_TOKEN}"
 OPENCLAW_MODEL = "$OPENCLAW_MODEL"
+
+# API key for model provider
+# Uncomment as needed based on $OPENCLAW_MODEL
+# Key is read from .env file
+ANTHROPIC_API_KEY = "${secrets.ANTHROPIC_API_KEY}"
+# OPENAI_API_KEY = "${secrets.OPENAI_API_KEY}"
+# GEMINI_API_KEY = "${secrets.GEMINI_API_KEY}"
 
 [build]
 slim = false

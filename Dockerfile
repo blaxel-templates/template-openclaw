@@ -3,12 +3,13 @@ FROM node:22-alpine
 RUN apk add --no-cache bash curl jq git tini \
     make cmake g++ build-base linux-headers python3
 
-RUN npm install -g openclaw@2026.2.17
+RUN npm install -g openclaw@2026.3.2
 
 ENV HOME=/root
 ENV OPENCLAW_HOME=/root
 
-RUN npm install -g @blaxel/openclaw-skill@latest
+RUN openclaw plugins install @blaxel/openclaw-skill
+RUN openclaw plugins enable blaxel-sandbox
 
 COPY entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
