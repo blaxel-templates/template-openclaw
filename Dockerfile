@@ -3,7 +3,7 @@ FROM node:22-alpine
 RUN apk add --no-cache bash curl jq git tini \
     make cmake g++ build-base linux-headers python3
 
-RUN npm install -g openclaw@latest
+RUN npm install -g openclaw@2026.2.17
 
 ENV HOME=/root
 ENV OPENCLAW_HOME=/root
