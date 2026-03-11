@@ -2,5 +2,5 @@ kind: Volume
 metadata:
   name: openclaw-volume
 spec:
-  size: 4096
+  size: 2048
   region: ${BL_REGION:us-pdx-1}
