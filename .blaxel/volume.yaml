@@ -1,0 +1,6 @@
+kind: Volume
+metadata:
+  name: openclaw-volume
+spec:
+  size: 4096
+  region: us-pdx-1

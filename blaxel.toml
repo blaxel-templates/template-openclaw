@@ -1,5 +1,6 @@
 type = "agent"
 public = true
+region = "us-pdx-1"
 
 [runtime]
 generation = "mk3"
@@ -17,6 +18,10 @@ OPENCLAW_MODEL = "$OPENCLAW_MODEL"
 ANTHROPIC_API_KEY = "${secrets.ANTHROPIC_API_KEY}"
 # OPENAI_API_KEY = "${secrets.OPENAI_API_KEY}"
 # GEMINI_API_KEY = "${secrets.GEMINI_API_KEY}"
+
+[[volumes]]
+name = "openclaw-volume"
+mountPath = "/root/.openclaw"
 
 [build]
 slim = false

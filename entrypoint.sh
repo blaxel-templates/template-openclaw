@@ -17,6 +17,7 @@ fi
 export OPENCLAW_GATEWAY_TOKEN
 
 MODEL="${OPENCLAW_MODEL:-anthropic/claude-sonnet-4-5}"
+AUTH_MODE="${OPENCLAW_AUTH_MODE:-token}"
 
 if [ -z "$OPENCLAW_ALLOWED_ORIGIN" ] && [ -n "$BL_NAME" ] && [ -n "$BL_WORKSPACE_ID" ]; then
   if [ "$BL_ENV" = "dev" ]; then
