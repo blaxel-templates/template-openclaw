@@ -3,4 +3,4 @@ metadata:
   name: openclaw-volume
 spec:
   size: 4096
-  region: us-pdx-1
+  region: ${BL_REGION:us-pdx-1}

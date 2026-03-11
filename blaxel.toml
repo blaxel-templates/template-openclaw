@@ -1,6 +1,6 @@
 type = "agent"
 public = true
-region = "us-pdx-1"
+region = "${BL_REGION:us-pdx-1}"
 
 [runtime]
 generation = "mk3"
@@ -10,7 +10,7 @@ minScale = 1
 [env]
 # Primary model for OpenClaw (provider/model format)
 OPENCLAW_GATEWAY_TOKEN = "${secrets.OPENCLAW_GATEWAY_TOKEN}"
-OPENCLAW_MODEL = "$OPENCLAW_MODEL"
+OPENCLAW_MODEL = "${OPENCLAW_MODEL:anthropic/claude-opus-4-6}"
 
 # API key for model provider
 # Uncomment as needed based on $OPENCLAW_MODEL
