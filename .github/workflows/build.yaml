@@ -1,0 +1,26 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - "main"
+      - "develop"
+  workflow_dispatch:
+
+jobs:
+  release:
+    if: ${{ github.repository_owner == 'blaxel-templates' }}
+    uses: blaxel-templates/workflows/.github/workflows/build.yaml@main
+    with:
+      environment: ${{ github.ref_name == 'main' && 'prod' || 'dev' }}
+      repository: ${{ github.repository }}
+      sha: ${{ github.sha }}
+    secrets:
+      BL_ADMIN_USERNAME_DEV: ${{ secrets.BL_ADMIN_USERNAME_DEV }}
+      BL_ADMIN_PASSWORD_DEV: ${{ secrets.BL_ADMIN_PASSWORD_DEV }}
+      BL_ADMIN_USERNAME_PROD: ${{ secrets.BL_ADMIN_USERNAME_PROD }}
+      BL_ADMIN_PASSWORD_PROD: ${{ secrets.BL_ADMIN_PASSWORD_PROD }}
+      DEPOT_PROJECT_ID_DEV: ${{ secrets.DEPOT_PROJECT_ID_DEV }}
+      DEPOT_TOKEN_DEV: ${{ secrets.DEPOT_TOKEN_DEV }}
+      DEPOT_PROJECT_ID_PROD: ${{ secrets.DEPOT_PROJECT_ID_PROD }}
+      DEPOT_TOKEN_PROD: ${{ secrets.DEPOT_TOKEN_PROD }}

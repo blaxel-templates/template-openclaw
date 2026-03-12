@@ -17,6 +17,7 @@ run: build
 		--name $(CONTAINER_NAME) \
 		-p $(PORT):80 \
 		-v $(VOLUME_NAME):/root/.openclaw \
+		-v $(PWD)/auth-proxy.js:/auth-proxy.js \
 		-v $(PWD)/setup-server.js:/setup-server.js \
 		-v $(PWD)/blaxel-logo.png:/assets/blaxel-logo.png \
 		-v $(PWD)/icon-dark.png:/assets/openclaw-logo.png \

@@ -4,7 +4,9 @@ const path = require("path");
 
 const PORT = process.env.PORT || 80;
 const AUTH_FILE = process.env.AUTH_FILE || "/root/.openclaw/proxy-auth.json";
-const NEED_BLAXEL = !process.env.BL_CLOUD && (!process.env.BL_API_KEY || !process.env.BL_WORKSPACE);
+const BL_CLOUD = process.env.BL_CLOUD === "true";
+const NEED_BLAXEL = !BL_CLOUD && (!process.env.BL_API_KEY || !process.env.BL_WORKSPACE);
+const NEED_CREDENTIALS = !BL_CLOUD; // Basic auth credentials needed when not on Blaxel
 
 const PROVIDERS = {
   anthropic: {
@@ -430,8 +432,8 @@ const SETUP_HTML = `<!DOCTYPE html>
         </div>
       </div>
 
-      <!-- Step 5: Credentials -->
-      <div class="step" id="step-3">
+      <!-- Step 5: Credentials (only when not on Blaxel) -->
+      <div class="step" id="step-creds">
         <h2>Access Credentials</h2>
         <p class="subtitle">Set a username and password to protect your instance</p>
         <div class="field">
@@ -475,17 +477,17 @@ const SETUP_HTML = `<!DOCTYPE html>
   <script>
     const providers = ${JSON.stringify(PROVIDERS)};
     const needBlaxel = ${NEED_BLAXEL};
+    const needCredentials = ${NEED_CREDENTIALS};
     let selectedProvider = null;
 
     // Build step sequence dynamically
     const stepIds = ['step-0', 'step-1', 'step-2'];
     if (needBlaxel) stepIds.push('step-blaxel');
-    stepIds.push('step-3');
+    if (needCredentials) stepIds.push('step-creds');
 
-    // Hide blaxel step if not needed
-    if (!needBlaxel) {
-      document.getElementById('step-blaxel').remove();
-    }
+    // Remove unused steps from DOM
+    if (!needBlaxel) document.getElementById('step-blaxel').remove();
+    if (!needCredentials) document.getElementById('step-creds').remove();
 
     // Build progress bars
     const dotsContainer = document.getElementById('step-dots');
@@ -519,7 +521,7 @@ const SETUP_HTML = `<!DOCTYPE html>
     function nextStep() { goToIndex(currentStepIndex + 1); }
     function prevStep() { goToIndex(currentStepIndex - 1); }
 
-    // Step 0: Provider selection (auto-continue on click)
+    // Step 0: Provider selection
     function selectProvider(providerKey) {
       document.querySelectorAll('.provider-btn').forEach(b => b.classList.remove('selected'));
       document.querySelector('[data-provider="' + providerKey + '"]').classList.add('selected');
@@ -563,49 +565,53 @@ const SETUP_HTML = `<!DOCTYPE html>
         modelSelect.value === '__custom__' ? 'block' : 'none';
     });
 
+    const isModelLastStep = !needBlaxel && !needCredentials;
+
     document.getElementById('btn-step2').addEventListener('click', () => {
       const model = modelSelect.value === '__custom__'
         ? document.getElementById('custom-model').value.trim()
         : modelSelect.value;
       if (!model) { showError('Please select or enter a model.'); return; }
-      nextStep();
+      if (isModelLastStep) {
+        submitSetup();
+      } else {
+        nextStep();
+      }
     });
+
+    // Update button text if model step is the final step
+    if (isModelLastStep) {
+      document.getElementById('btn-step2').textContent = 'Complete Setup';
+    }
 
     // Blaxel step
     if (needBlaxel) {
+      const isBlaxelLastStep = !needCredentials;
       document.getElementById('btn-blaxel-back').addEventListener('click', prevStep);
       document.getElementById('btn-blaxel-next').addEventListener('click', () => {
         const ws = document.getElementById('bl-workspace').value.trim();
         const key = document.getElementById('bl-apikey').value.trim();
         if (!ws || !key) { showError('Blaxel workspace and API key are required.'); return; }
-        nextStep();
+        if (isBlaxelLastStep) {
+          submitSetup();
+        } else {
+          nextStep();
+        }
       });
+      if (isBlaxelLastStep) {
+        document.getElementById('btn-blaxel-next').textContent = 'Complete Setup';
+      }
     }
 
-    // Back buttons
-    document.querySelectorAll('.btn-secondary:not(#btn-blaxel-back)').forEach(btn => {
-      btn.addEventListener('click', prevStep);
-    });
-
-    // Credentials + Submit
+    // Submit setup
     async function submitSetup() {
       showError('');
-      const username = document.getElementById('username').value.trim();
-      const password = document.getElementById('password').value;
-      const confirmPw = document.getElementById('confirm').value;
-
-      if (!username || !password) { showError('Username and password are required.'); return; }
-      if (password !== confirmPw) { showError('Passwords do not match.'); return; }
-      if (password.length < 4) { showError('Password must be at least 4 characters.'); return; }
-
       const model = modelSelect.value === '__custom__'
         ? document.getElementById('custom-model').value.trim()
         : modelSelect.value;
       const apiKey = document.getElementById('apikey').value.trim();
 
       const payload = {
-        username,
-        password,
         provider: selectedProvider,
         apiKey,
         model,
@@ -616,7 +622,21 @@ const SETUP_HTML = `<!DOCTYPE html>
         payload.blApiKey = document.getElementById('bl-apikey').value.trim();
       }
 
-      const btn = document.getElementById('btn-finish');
+      if (needCredentials) {
+        const username = document.getElementById('username').value.trim();
+        const password = document.getElementById('password').value;
+        const confirmPw = document.getElementById('confirm').value;
+        if (!username || !password) { showError('Username and password are required.'); return; }
+        if (password !== confirmPw) { showError('Passwords do not match.'); return; }
+        if (password.length < 4) { showError('Password must be at least 4 characters.'); return; }
+        payload.username = username;
+        payload.password = password;
+      }
+
+      // Disable the active submit button
+      const btn = document.getElementById('btn-finish')
+        || document.getElementById('btn-blaxel-next')
+        || document.getElementById('btn-step2');
       btn.disabled = true;
       btn.textContent = 'Setting up...';
 
@@ -641,36 +661,25 @@ const SETUP_HTML = `<!DOCTYPE html>
       }
     }
 
-    document.getElementById('btn-finish').addEventListener('click', submitSetup);
+    if (needCredentials) {
+      document.getElementById('btn-finish').addEventListener('click', submitSetup);
+    }
+
+    // Back buttons
+    document.querySelectorAll('.btn-secondary:not(#btn-blaxel-back)').forEach(btn => {
+      btn.addEventListener('click', prevStep);
+    });
 
     // Enter key handler
     document.addEventListener('keydown', (e) => {
       if (e.key !== 'Enter') return;
       if (e.target.tagName === 'SELECT') return;
-
       const currentId = stepIds[currentStepIndex];
-
       if (currentId === 'step-0') return;
-      if (currentId === 'step-1') {
-        e.preventDefault();
-        document.getElementById('btn-step1').click();
-        return;
-      }
-      if (currentId === 'step-2') {
-        e.preventDefault();
-        document.getElementById('btn-step2').click();
-        return;
-      }
-      if (currentId === 'step-blaxel') {
-        e.preventDefault();
-        document.getElementById('btn-blaxel-next').click();
-        return;
-      }
-      if (currentId === 'step-3') {
-        e.preventDefault();
-        submitSetup();
-        return;
-      }
+      if (currentId === 'step-1') { e.preventDefault(); document.getElementById('btn-step1').click(); return; }
+      if (currentId === 'step-2') { e.preventDefault(); document.getElementById('btn-step2').click(); return; }
+      if (currentId === 'step-blaxel') { e.preventDefault(); document.getElementById('btn-blaxel-next').click(); return; }
+      if (currentId === 'step-creds') { e.preventDefault(); submitSetup(); return; }
     });
   </script>
 </body>
@@ -701,13 +710,8 @@ const server = http.createServer((req, res) => {
     req.on("data", (chunk) => { body += chunk; });
     req.on("end", () => {
       try {
-        const { username, password, provider, apiKey, model, blWorkspace, blApiKey } = JSON.parse(body);
+        const { provider, apiKey, model, blWorkspace, blApiKey, username, password } = JSON.parse(body);
 
-        if (!username || !password) {
-          res.writeHead(400, { "Content-Type": "application/json" });
-          res.end(JSON.stringify({ error: "Username and password are required" }));
-          return;
-        }
         if (!provider || !apiKey || !model) {
           res.writeHead(400, { "Content-Type": "application/json" });
           res.end(JSON.stringify({ error: "Provider, API key, and model are required" }));
@@ -722,13 +726,14 @@ const server = http.createServer((req, res) => {
         }
 
         const config = {
-          username,
-          password,
           provider,
           apiKeyEnvVar: providerInfo.envVar,
           apiKey,
           model,
         };
+
+        if (username) config.username = username;
+        if (password) config.password = password;
 
         if (blWorkspace) config.blWorkspace = blWorkspace;
         if (blApiKey) config.blApiKey = blApiKey;
