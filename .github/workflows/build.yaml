@@ -19,6 +19,7 @@ jobs:
       environment: ${{ github.ref_name == 'main' && 'prod' || 'dev' }}
       repository: ${{ github.repository }}
       sha: ${{ github.sha }}
+      bl_type: agent
     secrets:
       BL_ADMIN_USERNAME_DEV: ${{ secrets.BL_ADMIN_USERNAME_DEV }}
       BL_ADMIN_PASSWORD_DEV: ${{ secrets.BL_ADMIN_PASSWORD_DEV }}

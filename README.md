@@ -8,9 +8,7 @@ OpenClaw's Control UI, WebSocket API, and optional channel integrations (Telegra
 
 ### One-Click Deploy
 
-Create an OpenClaw agent directly from the Blaxel console:
-
-[![Deploy on Blaxel](https://raw.githubusercontent.com/blaxel-ai/toolkit/main/assets/deploy-on-blaxel.svg)](https://app.blaxel.ai/global-agentic-network/agents/create?type=openclaw)
+Create an OpenClaw agent directly from the Blaxel console: [Link](ttps://app.blaxel.ai/global-agentic-network/agents/create?type=openclaw)
 
 ### Custom Deploy
 
