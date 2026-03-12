@@ -4,6 +4,11 @@ const crypto = require("crypto");
 const fs = require("fs");
 const path = require("path");
 const { URL, URLSearchParams } = require("url");
+const os = require("os");
+
+// --- User-Agent for outbound requests ---
+const osArch = `${os.platform()}/${os.arch()}`;
+const USER_AGENT = `blaxel/template/openclaw/1.0 (${osArch})`;
 
 // --- Configuration ---
 const PORT = parseInt(process.env.PORT || "80", 10);
@@ -155,7 +160,7 @@ function fetchRaw(url, options = {}) {
       hostname: parsed.hostname,
       port: parsed.port,
       path: parsed.pathname + parsed.search,
-      headers: options.headers || {},
+      headers: { "User-Agent": USER_AGENT, ...options.headers },
     };
     const req = mod.request(reqOpts, (res) => {
       let data = "";
@@ -183,7 +188,7 @@ function fetchJSON(url, options = {}) {
       hostname: parsed.hostname,
       port: parsed.port,
       path: parsed.pathname + parsed.search,
-      headers: options.headers || {},
+      headers: { "User-Agent": USER_AGENT, ...options.headers },
     };
     const req = mod.request(reqOpts, (res) => {
       let data = "";
@@ -745,6 +750,7 @@ function proxyRequest(req, res, user) {
   proxyHeaders["x-forwarded-proto"] =
     req.headers["x-forwarded-proto"] ||
     (req.socket.encrypted ? "https" : "http");
+  proxyHeaders["user-agent"] = USER_AGENT;
 
   // Keep the original Host header so OpenClaw's origin check
   // (dangerouslyAllowHostHeaderOriginFallback) matches the browser's Origin
@@ -799,6 +805,7 @@ function handleUpgrade(req, socket, head) {
   const url = new URL(req.url, UPSTREAM);
   const proxyHeaders = { ...req.headers };
   proxyHeaders["x-forwarded-user"] = user;
+  proxyHeaders["user-agent"] = USER_AGENT;
 
   const proxyReq = http.request({
     hostname: url.hostname,
