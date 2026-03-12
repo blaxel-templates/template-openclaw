@@ -78,21 +78,6 @@ template-openclaw/
 └── .dockerignore
 ```
 
-## Channels
-
-OpenClaw supports many channels. To enable one, set the relevant environment variable and redeploy. For example, for Telegram:
-
-Add the token to your `.env`:
-```
-TELEGRAM_BOT_TOKEN=123456:ABC-DEF...
-```
-Then redeploy:
-```bash
-bl deploy
-```
-
-For other channels (Discord, WhatsApp, Slack, etc.), configure them through the Control UI after connecting, or add them to the `openclaw.json` config in `entrypoint.sh`.
-
 ## Troubleshooting
 
 **Can't connect to the Control UI**: Make sure you've set `OPENCLAW_GATEWAY_TOKEN` and entered it on the Overview page. If you didn't set one, check the agent logs for the auto-generated token:
