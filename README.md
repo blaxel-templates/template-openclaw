@@ -52,7 +52,7 @@ Variables in `.env` are automatically stored in Blaxel's secret manager on deplo
 
 | Variable | Default | Description |
 |---|---|---|
-| `OPENCLAW_MODEL` | `anthropic/claude-sonnet-4-5` | Primary model in `provider/model` format (e.g. `anthropic/claude-opus-4-6`, `openai/gpt-4o`). |
+| `OPENCLAW_MODEL` | `anthropic/claude-sonnet-4-5` | Primary model in `provider/model` format (e.g. `anthropic/claude-opus-4-6`, `openai/gpt-5.4`). |
 | `ANTHROPIC_API_KEY` | | Anthropic API key. Required if using an Anthropic model. |
 | `OPENAI_API_KEY` | | OpenAI API key. Required if using an OpenAI model. |
 | `GEMINI_API_KEY` | | Google Gemini API key. Required if using a Gemini model. |

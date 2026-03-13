@@ -22,16 +22,17 @@ const PROVIDERS = {
     name: "OpenAI",
     envVar: "OPENAI_API_KEY",
     models: [
-      "openai/gpt-4.1",
-      "openai/gpt-4.1-mini",
+      "openai/gpt-5.4",
+      "openai/gpt-5.4-pro",
+      "openai/gpt-5-mini",
       "openai/o3",
-      "openai/o4-mini",
     ],
   },
   gemini: {
     name: "Google Gemini",
     envVar: "GEMINI_API_KEY",
     models: [
+      "gemini/gemini-3-pro-preview",
       "gemini/gemini-2.5-pro",
       "gemini/gemini-2.5-flash",
     ],
