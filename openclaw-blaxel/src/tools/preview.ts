@@ -20,7 +20,7 @@ export function createPreviewHandler(rawCfg: BlaxelSandboxConfig, logger?: any) 
     try {
       const sandbox = await getSandbox(rawCfg, logger, params.sandboxName);
 
-      logger?.info(`[blaxel-sandbox] Creating preview for port ${params.port} on "${params.sandboxName}"…`);
+      logger?.info(`[openclaw-blaxel-sandbox] Creating preview for port ${params.port} on "${params.sandboxName}"…`);
 
       const preview = await sandbox.previews.createIfNotExists({
         metadata: { name: `preview-${params.port}` },
@@ -35,7 +35,7 @@ export function createPreviewHandler(rawCfg: BlaxelSandboxConfig, logger?: any) 
         };
       }
 
-      logger?.info(`[blaxel-sandbox] Preview URL for port ${params.port}: ${url}`);
+      logger?.info(`[openclaw-blaxel-sandbox] Preview URL for port ${params.port}: ${url}`);
 
       return {
         content: [{ type: "text" as const, text: url }],

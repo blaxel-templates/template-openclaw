@@ -1,5 +1,5 @@
 {
-  "id": "blaxel-sandbox",
+  "id": "openclaw-blaxel-sandbox",
   "name": "Blaxel Sandbox",
   "description": "Persistent, isolated sandbox environments on Blaxel — develop and host apps with CodeInterpreter (Jupyter) or raw Sandbox mode",
   "configSchema": {

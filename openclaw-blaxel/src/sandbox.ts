@@ -39,7 +39,7 @@ export async function getInterpreter(
 
   applyEnv(rawCfg);
 
-  logger?.info(`[blaxel-sandbox] Creating or connecting to code interpreter "${name}"…`);
+  logger?.info(`[openclaw-blaxel-sandbox] Creating or connecting to code interpreter "${name}"…`);
 
   const interpreter = await CodeInterpreter.createIfNotExists(
     { name, memory: cfg.memory, ...(cfg.region ? { region: cfg.region } : {}), labels: { "managed-by": "openclaw" } },
@@ -48,7 +48,7 @@ export async function getInterpreter(
 
   cache.set(name, interpreter);
 
-  logger?.info(`[blaxel-sandbox] Code interpreter "${name}" ready.`);
+  logger?.info(`[openclaw-blaxel-sandbox] Code interpreter "${name}" ready.`);
   return interpreter;
 }
 
@@ -72,7 +72,7 @@ export async function getSandbox(
   let sandbox: SandboxInstance;
 
   if (cfg.autoCreate) {
-    logger?.info(`[blaxel-sandbox] Creating or connecting to sandbox "${name}"…`);
+    logger?.info(`[openclaw-blaxel-sandbox] Creating or connecting to sandbox "${name}"…`);
     sandbox = await SandboxInstance.createIfNotExists({
       name,
       image: cfg.image,
@@ -81,13 +81,13 @@ export async function getSandbox(
       labels: { "managed-by": "openclaw" },
     });
   } else {
-    logger?.info(`[blaxel-sandbox] Connecting to existing sandbox "${name}"…`);
+    logger?.info(`[openclaw-blaxel-sandbox] Connecting to existing sandbox "${name}"…`);
     sandbox = await SandboxInstance.get(name);
   }
 
   cache.set(name, sandbox);
 
-  logger?.info(`[blaxel-sandbox] Connected to sandbox "${name}".`);
+  logger?.info(`[openclaw-blaxel-sandbox] Connected to sandbox "${name}".`);
   return sandbox;
 }
 

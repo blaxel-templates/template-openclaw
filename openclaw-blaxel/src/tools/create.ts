@@ -44,7 +44,7 @@ export function createCreateHandler(rawCfg: BlaxelSandboxConfig, logger?: any) {
       const image = params.image ?? cfg.image;
       const memory = params.memory ?? cfg.memory;
 
-      logger?.info(`[blaxel-sandbox] Creating sandbox "${params.sandboxName}" with ports [${params.ports.join(", ")}]…`);
+      logger?.info(`[openclaw-blaxel-sandbox] Creating sandbox "${params.sandboxName}" with ports [${params.ports.join(", ")}]…`);
 
       const envs = params.envs
         ? Object.entries(params.envs).map(([name, value]) => ({ name, value }))
@@ -66,7 +66,7 @@ export function createCreateHandler(rawCfg: BlaxelSandboxConfig, logger?: any) {
 
       cacheSandbox(params.sandboxName, sandbox);
 
-      logger?.info(`[blaxel-sandbox] Sandbox "${params.sandboxName}" ready.`);
+      logger?.info(`[openclaw-blaxel-sandbox] Sandbox "${params.sandboxName}" ready.`);
 
       return {
         content: [{

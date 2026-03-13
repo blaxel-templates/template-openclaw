@@ -184,13 +184,13 @@ jq \
     )
   }
   | .plugins = (.plugins // {})
-  | .plugins.allow = ["blaxel-sandbox"]
+  | .plugins.allow = ["openclaw-blaxel-sandbox"]
   | .plugins.entries = (.plugins.entries // {})
-  | .plugins.entries["blaxel-sandbox"] = (.plugins.entries["blaxel-sandbox"] // {})
-  | .plugins.entries["blaxel-sandbox"].enabled = true
+  | .plugins.entries["openclaw-blaxel-sandbox"] = (.plugins.entries["openclaw-blaxel-sandbox"] // {})
+  | .plugins.entries["openclaw-blaxel-sandbox"].enabled = true
   | if ($blApiKey != "" and $blWorkspace != "") then
-      .plugins.entries["blaxel-sandbox"].config = (
-        (.plugins.entries["blaxel-sandbox"].config // {})
+      .plugins.entries["openclaw-blaxel-sandbox"].config = (
+        (.plugins.entries["openclaw-blaxel-sandbox"].config // {})
         | .blaxel = { workspace: $blWorkspace, apiKey: $blApiKey }
       )
     else . end

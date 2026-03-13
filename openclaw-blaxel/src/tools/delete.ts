@@ -16,12 +16,12 @@ export const deleteToolDef = {
 export function createDeleteHandler(logger?: any) {
   return async (_id: string, params: { sandboxName: string }) => {
     try {
-      logger?.info(`[blaxel-sandbox] Deleting sandbox "${params.sandboxName}"…`);
+      logger?.info(`[openclaw-blaxel-sandbox] Deleting sandbox "${params.sandboxName}"…`);
 
       await SandboxInstance.delete(params.sandboxName);
       clearCachedSandbox(params.sandboxName);
 
-      logger?.info(`[blaxel-sandbox] Sandbox "${params.sandboxName}" deleted.`);
+      logger?.info(`[openclaw-blaxel-sandbox] Sandbox "${params.sandboxName}" deleted.`);
 
       return {
         content: [{ type: "text" as const, text: `Sandbox "${params.sandboxName}" deleted.` }],

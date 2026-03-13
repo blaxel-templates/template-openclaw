@@ -10,11 +10,11 @@ import { createToolDef, createCreateHandler } from "./src/tools/create.js";
 import { previewToolDef, createPreviewHandler } from "./src/tools/preview.js";
 import { deleteToolDef, createDeleteHandler } from "./src/tools/delete.js";
 
-export const id = "blaxel-sandbox";
+export const id = "openclaw-blaxel-sandbox";
 export const name = "Blaxel Sandbox";
 
 export function register(api: any) {
-  const cfg: BlaxelSandboxConfig = api.config?.plugins?.entries?.["blaxel-sandbox"]?.config ?? {};
+  const cfg: BlaxelSandboxConfig = api.config?.plugins?.entries?.["openclaw-blaxel-sandbox"]?.config ?? {};
   const resolved = resolveConfig(cfg);
   const logger = api.logger;
 
@@ -171,11 +171,11 @@ export function register(api: any) {
   // -- Background service --
 
   api.registerService({
-    id: "blaxel-sandbox",
-    start: () => logger?.info(`[blaxel-sandbox] Plugin loaded (mode: ${resolved.mode}).`),
+    id: "openclaw-blaxel-sandbox",
+    start: () => logger?.info(`[openclaw-blaxel-sandbox] Plugin loaded (mode: ${resolved.mode}).`),
     stop: () => {
       clearCachedSandbox();
-      logger?.info("[blaxel-sandbox] Plugin stopped.");
+      logger?.info("[openclaw-blaxel-sandbox] Plugin stopped.");
     },
   });
 
