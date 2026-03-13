@@ -11,7 +11,7 @@ ENV OPENCLAW_HOME=/root
 COPY openclaw-blaxel /opt/openclaw-blaxel
 RUN cd /opt/openclaw-blaxel && npm install --omit=dev
 RUN openclaw plugins install /opt/openclaw-blaxel
-RUN openclaw plugins enable blaxel-sandbox
+RUN openclaw plugins enable openclaw-blaxel-sandbox
 
 COPY auth-proxy.js /auth-proxy.js
 COPY setup-server.js /setup-server.js

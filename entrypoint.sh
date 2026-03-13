@@ -14,12 +14,6 @@ ENV_FILE="$OPENCLAW_DIR/env"
 
 mkdir -p "$OPENCLAW_DIR" "$OPENCLAW_DIR/workspace"
 
-# Ensure plugins are installed (volume mount may overwrite build-time installs)
-if [ ! -d "$OPENCLAW_DIR/extensions/blaxel-sandbox/node_modules" ]; then
-  echo "Installing OpenClaw plugins..."
-  openclaw plugins install /opt/openclaw-blaxel 2>/dev/null || true
-  openclaw plugins enable blaxel-sandbox 2>/dev/null || true
-fi
 # Fix ownership and permissions for volume-mounted plugin files
 chown -R root:root "$OPENCLAW_DIR/extensions" 2>/dev/null || true
 chmod -R go-w "$OPENCLAW_DIR/extensions" 2>/dev/null || true
