@@ -42,6 +42,7 @@ const SETUP_HTML = `<!DOCTYPE html>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>OpenClaw - Setup</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -683,9 +684,23 @@ const SETUP_HTML = `<!DOCTYPE html>
 </body>
 </html>`;
 
+const OPENCLAW_FAVICON_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120"><path d="M60 10 C30 10 15 35 15 55 C15 75 30 95 45 100 L45 110 L55 110 L55 100 C55 100 60 102 65 100 L65 110 L75 110 L75 100 C90 95 105 75 105 55 C105 35 90 10 60 10Z" fill="#ff4040"/><path d="M20 45 C5 40 0 50 5 60 C10 70 20 65 25 55 C28 48 25 45 20 45Z" fill="#ff4040"/><path d="M100 45 C115 40 120 50 115 60 C110 70 100 65 95 55 C92 48 95 45 100 45Z" fill="#ff4040"/><path d="M45 15 Q35 5 30 8" stroke="#ff6b5a" stroke-width="2" stroke-linecap="round" fill="none"/><path d="M75 15 Q85 5 90 8" stroke="#ff6b5a" stroke-width="2" stroke-linecap="round" fill="none"/><circle cx="45" cy="35" r="6" fill="#050810"/><circle cx="75" cy="35" r="6" fill="#050810"/><circle cx="46" cy="34" r="2" fill="#00e5cc"/><circle cx="76" cy="34" r="2" fill="#00e5cc"/></svg>`;
+
 const ASSETS_DIR = "/assets";
 
 const server = http.createServer((req, res) => {
+  if (req.method === "GET" && req.url === "/favicon.svg") {
+    res.writeHead(200, { "Content-Type": "image/svg+xml", "Cache-Control": "public, max-age=86400" });
+    res.end(OPENCLAW_FAVICON_SVG);
+    return;
+  }
+
+  if (req.method === "GET" && req.url === "/favicon.ico") {
+    res.writeHead(302, { Location: "/favicon.svg" });
+    res.end();
+    return;
+  }
+
   if (req.method === "GET" && (req.url === "/" || req.url === "/index.html")) {
     res.writeHead(200, { "Content-Type": "text/html" });
     res.end(SETUP_HTML);

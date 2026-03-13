@@ -41,11 +41,13 @@ const AUTH_BASE =
 // Workspace restriction (only allow users who belong to this workspace)
 const BL_WORKSPACE = process.env.BL_WORKSPACE || "";
 
+// OpenClaw SVG favicon (inline, no external file needed)
+const OPENCLAW_FAVICON_SVG = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120"><path d="M60 10 C30 10 15 35 15 55 C15 75 30 95 45 100 L45 110 L55 110 L55 100 C55 100 60 102 65 100 L65 110 L75 110 L75 100 C90 95 105 75 105 55 C105 35 90 10 60 10Z" fill="#ff4040"/><path d="M20 45 C5 40 0 50 5 60 C10 70 20 65 25 55 C28 48 25 45 20 45Z" fill="#ff4040"/><path d="M100 45 C115 40 120 50 115 60 C110 70 100 65 95 55 C92 48 95 45 100 45Z" fill="#ff4040"/><path d="M45 15 Q35 5 30 8" stroke="#ff6b5a" stroke-width="2" stroke-linecap="round" fill="none"/><path d="M75 15 Q85 5 90 8" stroke="#ff6b5a" stroke-width="2" stroke-linecap="round" fill="none"/><circle cx="45" cy="35" r="6" fill="#050810"/><circle cx="75" cy="35" r="6" fill="#050810"/><circle cx="46" cy="34" r="2" fill="#00e5cc"/><circle cx="76" cy="34" r="2" fill="#00e5cc"/></svg>`;
+
 const COOKIE_SECRET =
   process.env.COOKIE_SECRET || crypto.randomBytes(32).toString("hex");
 const COOKIE_NAME = "__bl_session";
 const SESSION_TTL_MS = 24 * 60 * 60 * 1000; // 24h
-const PENDING_AUTH_TTL_MS = 10 * 60 * 1000; // 10min
 
 if (AUTH_MODE === "basic" && (!PROXY_USER || !PROXY_PASSWORD)) {
   console.error(
@@ -56,16 +58,11 @@ if (AUTH_MODE === "basic" && (!PROXY_USER || !PROXY_PASSWORD)) {
 
 // --- In-memory stores ---
 const sessions = new Map(); // sessionId -> { user, accessToken, expiresAt }
-const pendingEmail = new Map(); // nonce -> { email, createdAt }
-
 // Cleanup expired entries every 5 minutes
 setInterval(() => {
   const now = Date.now();
   for (const [k, v] of sessions) {
     if (now > v.expiresAt) sessions.delete(k);
-  }
-  for (const [k, v] of pendingEmail) {
-    if (now - v.createdAt > PENDING_AUTH_TTL_MS) pendingEmail.delete(k);
   }
 }, 5 * 60 * 1000);
 
@@ -262,13 +259,14 @@ function createSession(res, req, user, accessToken) {
 // =====================
 // Login page HTML
 // =====================
-function getLoginPageHTML(error, emailSent, emailNonce) {
+function getLoginPageHTML(error, emailSent) {
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sign in - OpenClaw</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -447,7 +445,7 @@ function getLoginPageHTML(error, emailSent, emailNonce) {
         <button class="back-link" onclick="showEmailStep()">&#8592; Back</button>
         <p class="code-hint">We sent a sign-in code to <strong id="sent-email">${emailSent || ""}</strong>. Check your inbox and enter it below.</p>
         <form id="code-form" action="/auth/email/verify" method="POST">
-          <input type="hidden" name="nonce" value="${emailNonce || ""}">
+          <input type="hidden" name="email" value="${emailSent || ""}">
           <div class="form-group">
             <label for="code">Verification code</label>
             <input type="text" id="code" name="code" placeholder="Enter code" required autofocus autocomplete="one-time-code">
@@ -494,7 +492,7 @@ function getLoginPageHTML(error, emailSent, emailNonce) {
           return;
         }
         document.getElementById('sent-email').textContent = email;
-        document.querySelector('#code-form input[name="nonce"]').value = data.nonce;
+        document.querySelector('#code-form input[name="email"]').value = email;
         document.getElementById('email-step').classList.remove('active');
         document.getElementById('code-step').classList.add('active');
         document.getElementById('code').focus();
@@ -509,14 +507,14 @@ function getLoginPageHTML(error, emailSent, emailNonce) {
       hideError();
       const btn = document.getElementById('code-submit');
       const code = document.getElementById('code').value;
-      const nonce = document.querySelector('#code-form input[name="nonce"]').value;
+      const email = document.querySelector('#code-form input[name="email"]').value;
       btn.disabled = true;
       btn.innerHTML = '<span class="spinner"></span> Verifying...';
       try {
         const res = await fetch('/auth/email/verify', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ code, nonce }),
+          body: JSON.stringify({ code, email }),
         });
         const data = await res.json();
         if (!res.ok) {
@@ -613,12 +611,8 @@ async function handleEmailSend(req, res) {
     return;
   }
 
-  // Store a nonce so we can associate the verification step with this email
-  const nonce = crypto.randomBytes(16).toString("hex");
-  pendingEmail.set(nonce, { email, createdAt: Date.now() });
-
   res.writeHead(200, { "Content-Type": "application/json" });
-  res.end(JSON.stringify({ ok: true, nonce }));
+  res.end(JSON.stringify({ ok: true }));
 }
 
 // POST /auth/email/verify - Verify the code and create session
@@ -634,7 +628,7 @@ async function handleEmailVerify(req, res) {
   }
 
   const code = (body.code || "").trim();
-  const nonce = (body.nonce || "").trim();
+  const email = (body.email || "").trim().toLowerCase();
 
   if (!code) {
     res.writeHead(400, { "Content-Type": "application/json" });
@@ -642,14 +636,11 @@ async function handleEmailVerify(req, res) {
     return;
   }
 
-  const pending = pendingEmail.get(nonce);
-  if (!pending) {
+  if (!email || !email.includes("@")) {
     res.writeHead(400, { "Content-Type": "application/json" });
-    res.end(JSON.stringify({ error: "Invalid or expired session. Please start over." }));
+    res.end(JSON.stringify({ error: "Valid email address is required" }));
     return;
   }
-  const email = pending.email;
-  pendingEmail.delete(nonce);
 
   // Call controlplane's email finalize endpoint server-side
   // This endpoint sets a session cookie and redirects - we capture the Set-Cookie
@@ -875,6 +866,21 @@ const server = http.createServer(async (req, res) => {
   if (pathname === "/health") {
     res.writeHead(200, { "Content-Type": "text/plain" });
     res.end("ok");
+    return;
+  }
+
+  // Favicon
+  if (pathname === "/favicon.svg") {
+    res.writeHead(200, {
+      "Content-Type": "image/svg+xml",
+      "Cache-Control": "public, max-age=86400",
+    });
+    res.end(OPENCLAW_FAVICON_SVG);
+    return;
+  }
+  if (pathname === "/favicon.ico") {
+    res.writeHead(302, { Location: "/favicon.svg" });
+    res.end();
     return;
   }
 
