@@ -14,6 +14,13 @@ ENV_FILE="$OPENCLAW_DIR/env"
 
 mkdir -p "$OPENCLAW_DIR" "$OPENCLAW_DIR/workspace"
 
+# Ensure plugin is installed (may be missing if .openclaw is volume-mounted)
+if ! openclaw plugins list 2>/dev/null | grep -q "openclaw-blaxel-sandbox"; then
+  echo "Plugin openclaw-blaxel-sandbox not found, installing..."
+  openclaw plugins install /opt/openclaw-blaxel
+  openclaw plugins enable openclaw-blaxel-sandbox
+fi
+
 # Fix ownership and permissions for volume-mounted plugin files
 chown -R root:root "$OPENCLAW_DIR/extensions" 2>/dev/null || true
 chmod -R go-w "$OPENCLAW_DIR/extensions" 2>/dev/null || true
