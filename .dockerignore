@@ -3,3 +3,10 @@ node_modules
 .gitignore
 *.md
 .blaxel
+.env
+.env.*
+.claude
+Makefile
+.DS_Store
+openclaw-blaxel/node_modules
+openclaw-blaxel/.git

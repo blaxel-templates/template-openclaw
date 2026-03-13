@@ -1,0 +1,18 @@
+kind: Agent
+metadata:
+  name: openclaw-openai
+spec:
+  region: eu-dub-1
+  public: true
+  runtime:
+    image: blaxel/openclaw
+    memory: 4096
+    envs:
+      - name: OPENCLAW_MODEL
+        value: openai/gpt-5.4
+      - name: OPENAI_API_KEY
+        value: ${secrets.OPENAI_API_KEY}
+      - name: PROXY_USER
+        value: ${secrets.PROXY_USER}
+      - name: PROXY_PASSWORD
+        value: ${secrets.PROXY_PASSWORD}

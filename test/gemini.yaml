@@ -1,0 +1,18 @@
+kind: Agent
+metadata:
+  name: openclaw-gemini
+spec:
+  region: eu-dub-1
+  public: true
+  runtime:
+    image: blaxel/openclaw
+    memory: 4096
+    envs:
+      - name: OPENCLAW_MODEL
+        value: google/gemini-3.1-pro-preview
+      - name: GEMINI_API_KEY
+        value: ${secrets.GEMINI_API_KEY}
+      - name: PROXY_USER
+        value: ${secrets.PROXY_USER}
+      - name: PROXY_PASSWORD
+        value: ${secrets.PROXY_PASSWORD}
