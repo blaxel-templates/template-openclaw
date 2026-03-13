@@ -1,3 +1,9 @@
+kind: Volume
+metadata:
+  name: openclaw-anthropic-data
+spec:
+  size: 1024
+---
 kind: Agent
 metadata:
   name: openclaw-anthropic
@@ -16,3 +22,6 @@ spec:
         value: ${secrets.PROXY_USER}
       - name: PROXY_PASSWORD
         value: ${secrets.PROXY_PASSWORD}
+    volumes:
+      - name: openclaw-anthropic-data
+        mountPath: /root/.openclaw

@@ -1,3 +1,9 @@
+kind: Volume
+metadata:
+  name: openclaw-gemini-data
+spec:
+  size: 1024
+---
 kind: Agent
 metadata:
   name: openclaw-gemini
@@ -16,3 +22,6 @@ spec:
         value: ${secrets.PROXY_USER}
       - name: PROXY_PASSWORD
         value: ${secrets.PROXY_PASSWORD}
+    volumes:
+      - name: openclaw-gemini-data
+        mountPath: /root/.openclaw
