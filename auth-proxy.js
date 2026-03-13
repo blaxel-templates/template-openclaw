@@ -16,7 +16,13 @@ const UPSTREAM_PORT = parseInt(process.env.UPSTREAM_PORT || "8080", 10);
 const UPSTREAM = `http://127.0.0.1:${UPSTREAM_PORT}`;
 const BL_CLOUD = process.env.BL_CLOUD === "true";
 const BL_ENV = process.env.BL_ENV || "prod";
-const AUTH_MODE = BL_CLOUD ? "oauth2" : "basic";
+
+// Basic auth config
+const PROXY_USER = process.env.PROXY_USER;
+const PROXY_PASSWORD = process.env.PROXY_PASSWORD;
+
+// If proxy credentials are explicitly set, use basic auth even on Blaxel cloud
+const AUTH_MODE = (PROXY_USER && PROXY_PASSWORD) ? "basic" : (BL_CLOUD ? "oauth2" : "basic");
 
 // URL the proxy uses server-side (email login, profile)
 const AUTH_BASE_INTERNAL =
@@ -31,10 +37,6 @@ const AUTH_BASE =
   (BL_ENV === "dev"
     ? "https://api.blaxel.dev/v0"
     : "https://api.blaxel.ai/v0");
-
-// Basic auth config (only used when BL_CLOUD is not set)
-const PROXY_USER = process.env.PROXY_USER;
-const PROXY_PASSWORD = process.env.PROXY_PASSWORD;
 
 // Workspace restriction (only allow users who belong to this workspace)
 const BL_WORKSPACE = process.env.BL_WORKSPACE || "";

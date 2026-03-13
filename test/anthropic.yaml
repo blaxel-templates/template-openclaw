@@ -1,0 +1,18 @@
+kind: Agent
+metadata:
+  name: openclaw-anthropic
+spec:
+  region: eu-dub-1
+  public: true
+  runtime:
+    image: blaxel/openclaw
+    memory: 4096
+    envs:
+      - name: OPENCLAW_MODEL
+        value: anthropic/claude-opus-4-6
+      - name: ANTHROPIC_API_KEY
+        value: ${secrets.ANTHROPIC_API_KEY}
+      - name: PROXY_USER
+        value: ${secrets.PROXY_USER}
+      - name: PROXY_PASSWORD
+        value: ${secrets.PROXY_PASSWORD}

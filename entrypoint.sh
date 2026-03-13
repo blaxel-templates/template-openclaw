@@ -212,7 +212,7 @@ mv "$TMP_CONFIG" "$OPENCLAW_CONFIG"
 
 echo "============================================"
 echo "OpenClaw Gateway starting on localhost:$OPENCLAW_PORT"
-if [ "$BL_CLOUD" = "true" ]; then
+if [ "$BL_CLOUD" = "true" ] && [ -z "$PROXY_USER" ] && [ -z "$PROXY_PASSWORD" ]; then
   echo "Auth: Blaxel OAuth2"
 else
   echo "Auth: Basic auth (user: $PROXY_USER)"
