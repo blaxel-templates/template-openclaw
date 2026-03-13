@@ -14,15 +14,12 @@ ENV_FILE="$OPENCLAW_DIR/env"
 
 mkdir -p "$OPENCLAW_DIR" "$OPENCLAW_DIR/workspace"
 
-# Restore plugin from build-time snapshot if missing (instant vs slow reinstall)
+# Restore plugin from build-time snapshot if missing (fast fs check, no Node spawn)
 if [ -d /opt/openclaw-snapshot/extensions ] && \
-   ! openclaw plugins list 2>/dev/null | grep -q "openclaw-blaxel-sandbox"; then
+   [ ! -d "$OPENCLAW_DIR/extensions/openclaw-blaxel-sandbox" ]; then
   echo "Restoring openclaw-blaxel-sandbox plugin from snapshot..."
   cp -a /opt/openclaw-snapshot/extensions "$OPENCLAW_DIR/"
-  # Merge plugin registry so openclaw recognises the plugin
-  if [ -f /opt/openclaw-snapshot/plugins.json ]; then
-    cp -a /opt/openclaw-snapshot/plugins.json "$OPENCLAW_DIR/"
-  fi
+  [ -f /opt/openclaw-snapshot/plugins.json ] && cp -a /opt/openclaw-snapshot/plugins.json "$OPENCLAW_DIR/"
 fi
 
 # Fix ownership and permissions for volume-mounted plugin files
