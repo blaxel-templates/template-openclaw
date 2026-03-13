@@ -13,6 +13,10 @@ RUN cd /opt/openclaw-blaxel && npm install --omit=dev
 RUN openclaw plugins install /opt/openclaw-blaxel
 RUN openclaw plugins enable openclaw-blaxel-sandbox
 
+# Snapshot the installed plugin state so we can restore it instantly at runtime
+# if a volume mount overwrites .openclaw
+RUN cp -a /root/.openclaw /opt/openclaw-snapshot
+
 COPY auth-proxy.js /auth-proxy.js
 COPY setup-server.js /setup-server.js
 COPY blaxel-logo.png /assets/blaxel-logo.png
