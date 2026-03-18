@@ -6,14 +6,15 @@ export const runCodeToolDef = {
   name: "sandbox_run_code",
   description:
     "Execute code in a persistent Jupyter kernel (CodeInterpreter). " +
-    "The sandbox is STATEFUL: variables, imports, and all state persist across calls within the same context. " +
+    "Use this tool directly without calling sandbox_create first -- a code interpreter sandbox is automatically created or reused based on the interpreterName. " +
+    "The interpreter is STATEFUL: variables, imports, and all state persist across calls within the same interpreter. " +
     "Use for iterative coding, data analysis, prototyping, and multi-step computations. " +
     "Supports Python (default) and other Jupyter-supported languages. " +
-    "You can create multiple isolated contexts in the same sandbox (e.g. one for Python, one for JS) by passing a new contextId. " +
+    "You can create multiple isolated contexts in the same interpreter (e.g. one for Python, one for JS) by passing a new contextId. " +
     "Returns stdout, stderr, rich outputs (images, HTML), errors with tracebacks, and the contextId for reuse. " +
     "Use sandbox_exec instead for shell commands (installing packages, running scripts, builds, starting servers).",
   parameters: Type.Object({
-    sandboxName: Type.String({ description: "Name of the sandbox. Use separate names to isolate unrelated projects." }),
+    interpreterName: Type.String({ description: "Name of the code interpreter. Reuse the same name to run code in the same persistent interpreter. Use separate names to isolate unrelated projects." }),
     code: Type.String({ description: "The code to execute." }),
     contextId: Type.Optional(
       Type.String({ description: "Reuse a specific execution context by its ID (returned from a previous call). Variables and state persist within a context. If omitted, a default context is created per sandbox." }),
@@ -34,7 +35,7 @@ export function createRunCodeHandler(rawCfg: BlaxelSandboxConfig, logger?: any) 
   const contexts = new Map<string, any>();
 
   return async (_id: string, params: {
-    sandboxName: string;
+    interpreterName: string;
     code: string;
     contextId?: string;
     language?: string;
@@ -42,7 +43,7 @@ export function createRunCodeHandler(rawCfg: BlaxelSandboxConfig, logger?: any) 
     timeout?: number;
   }) => {
     try {
-      const interpreter = await getInterpreter(rawCfg, logger, params.sandboxName);
+      const interpreter = await getInterpreter(rawCfg, logger, params.interpreterName);
 
       let context: any;
       let contextId: string;
@@ -57,7 +58,7 @@ export function createRunCodeHandler(rawCfg: BlaxelSandboxConfig, logger?: any) 
           contextId = params.contextId;
         }
       } else {
-        const defaultKey = `${params.sandboxName}:${params.language ?? "default"}`;
+        const defaultKey = `${params.interpreterName}:${params.language ?? "default"}`;
         context = contexts.get(defaultKey);
         if (!context) {
           context = await interpreter.createCodeContext({

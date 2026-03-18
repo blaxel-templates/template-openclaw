@@ -6,22 +6,23 @@ import { writeFileToolDef, createWriteFileHandler } from "./src/tools/write-file
 import { readFileToolDef, createReadFileHandler } from "./src/tools/read-file.js";
 import { listFilesToolDef, createListFilesHandler } from "./src/tools/list-files.js";
 import { runCodeToolDef, createRunCodeHandler } from "./src/tools/run-code.js";
-import { createToolDef, createCreateHandler } from "./src/tools/create.js";
+import { buildCreateToolDef, fetchSandboxHubImages, createCreateHandler } from "./src/tools/create.js";
 import { previewToolDef, createPreviewHandler } from "./src/tools/preview.js";
 import { deleteToolDef, createDeleteHandler } from "./src/tools/delete.js";
 
 export const id = "openclaw-blaxel-sandbox";
 export const name = "Blaxel Sandbox";
 
-export function register(api: any) {
+export async function register(api: any) {
   const cfg: BlaxelSandboxConfig = api.config?.plugins?.entries?.["openclaw-blaxel-sandbox"]?.config ?? {};
   const resolved = resolveConfig(cfg);
   const logger = api.logger;
 
   // -- Tools available in both modes (CodeInterpreter extends SandboxInstance) --
 
+  const imageDescription = await fetchSandboxHubImages();
   api.registerTool({
-    ...createToolDef,
+    ...buildCreateToolDef(imageDescription),
     execute: createCreateHandler(cfg, logger),
   });
 
