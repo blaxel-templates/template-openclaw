@@ -48,7 +48,8 @@ function buildImageDescription(images: HubImage[]): string {
 
 export async function fetchSandboxHubImages(): Promise<string> {
   try {
-    const images = await listSandboxHubDefinitions() as HubImage[];
+    const result = await listSandboxHubDefinitions();
+    const images = (result.data ?? []) as HubImage[];
     return buildImageDescription(images);
   } catch {
     return FALLBACK_IMAGE_DESCRIPTION;
