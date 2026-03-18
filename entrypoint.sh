@@ -191,6 +191,8 @@ jq \
       end
     )
   }
+  | .update = { checkOnStart: false, auto: { enabled: false } }
+  | .commands = (.commands // {}) | .commands.restart = false
   | .plugins = (.plugins // {})
   | .plugins.allow = ["openclaw-blaxel-sandbox"]
   | .plugins.entries = (.plugins.entries // {})
@@ -242,14 +244,19 @@ MAX_RETRIES="${MAX_RETRIES:-5}"
 RETRY_COUNT=0
 
 while true; do
+  # Kill any openclaw processes AND children spawned by SIGUSR1 restart
   pkill -9 -f "openclaw gateway" 2>/dev/null || true
+  pkill -9 -f "openclaw.mjs" 2>/dev/null || true
   sleep 1
 
   rm -f "$OPENCLAW_DIR"/*.lock "$OPENCLAW_DIR"/*.pid 2>/dev/null || true
   rm -f /tmp/openclaw/*.lock /tmp/openclaw/*.pid 2>/dev/null || true
 
   fuser -k "$OPENCLAW_PORT/tcp" 2>/dev/null || true
-  sleep 0.5
+  # Wait long enough for TIME_WAIT sockets to clear (the default 0.5s is too
+  # short and causes "port still not bindable" when OpenClaw's SIGUSR1
+  # restart handler spawns a child process before exiting)
+  sleep 3
 
   openclaw gateway \
     --port "$OPENCLAW_PORT" \
