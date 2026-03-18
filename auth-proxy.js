@@ -860,7 +860,14 @@ function authenticate(req, res) {
 // Server
 // =====================
 const server = http.createServer(async (req, res) => {
-  const pathname = new URL(req.url, "http://localhost").pathname;
+  let pathname;
+  try {
+    pathname = new URL(req.url, "http://localhost").pathname;
+  } catch {
+    res.writeHead(400, { "Content-Type": "text/plain" });
+    res.end("Bad Request");
+    return;
+  }
 
   // Health check (always unauthenticated)
   if (pathname === "/health") {

@@ -43,7 +43,6 @@ export async function getInterpreter(
 
   const interpreter = await CodeInterpreter.createIfNotExists(
     { name, memory: cfg.memory, ...(cfg.region ? { region: cfg.region } : {}), labels: { "managed-by": "openclaw" } },
-    { safe: true },
   );
 
   cache.set(name, interpreter);

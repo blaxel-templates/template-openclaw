@@ -9,7 +9,14 @@ ENV HOME=/root
 ENV OPENCLAW_HOME=/root
 
 COPY openclaw-blaxel /opt/openclaw-blaxel
-RUN cd /opt/openclaw-blaxel && npm install --omit=dev
+RUN cd /opt/openclaw-blaxel && npm install
+RUN cd /opt/openclaw-blaxel && npx tsc
+# Point plugin entry at compiled JS so OpenClaw skips its TS loader
+# (the TS loader can wrap the module in a Promise, causing
+# "async registration is ignored" and silently dropping all tools)
+RUN cd /opt/openclaw-blaxel && \
+    node -e "const p=require('./package.json'); p.openclaw.extensions=['./dist/index.js']; require('fs').writeFileSync('package.json',JSON.stringify(p,null,2)+'\n')"
+RUN cd /opt/openclaw-blaxel && npm prune --omit=dev
 RUN openclaw plugins install /opt/openclaw-blaxel
 RUN openclaw plugins enable openclaw-blaxel-sandbox
 
