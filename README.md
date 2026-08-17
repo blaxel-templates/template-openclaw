@@ -181,7 +181,7 @@ make logs
 
 - [OpenClaw Documentation](https://docs.openclaw.ai)
 - [Blaxel Documentation](https://docs.blaxel.ai)
-- [Blaxel Discord](https://discord.gg/G3NqzUPcHP)
+- [Blaxel Discord](https://discord.gg/CsWKUZUHFQ)
 
 ## License
 
