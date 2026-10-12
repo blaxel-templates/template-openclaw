@@ -19,7 +19,7 @@
     "openclaw.plugin.json"
   ],
   "dependencies": {
-    "@blaxel/core": "^0.2.74",
+    "@blaxel/core": "^0.3.25",
     "@sinclair/typebox": "^0.34.48",
     "zod": "^4.3.6"
   },
@@ -34,5 +34,8 @@
     "openclaw": {
       "optional": true
     }
+  },
+  "overrides": {
+    "js-yaml": "^4.3.2"
   }
 }
